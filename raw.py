@@ -28,6 +28,7 @@ def get_raw_data_from_fetch_request(yyyy='2021'):
     return json.loads(page.text)['stn']['data']
 
 if __name__ == "__main__":
+    df_year = pd.DataFrame()
     for year in range(1990, 2022):
         jsonData = get_raw_data_from_fetch_request(
             yyyy = str(year)
@@ -36,10 +37,12 @@ if __name__ == "__main__":
         # use year as key
         df = pd.DataFrame()
         for monthData in jsonData:
-            df = pd.concat([df, pd.DataFrame(monthData).iloc[:-2]])
+            df = pd.concat([df, pd.DataFrame(monthData).iloc[:-3]])
 
         df[['day', 'slp', 'maxtemp', 'avgtemp', 'mintemp', 'dewtemp', 'rh', 'cld', 'rf', 'sunhr', 'prewd', 'avgws']] = pd.DataFrame(df.dayData.tolist())
         df = df.drop('dayData', axis=1)
+        df['year'] = year
+        df_year = pd.concat([df_year, df])
 
-        with open("data/hko_{}.csv".format(year), 'w') as csvfile:
-            df.to_csv(csvfile, index=False, line_terminator='\n')
+    with open("hko_data.csv".format(), 'w') as csvfile:
+        df_year.to_csv(csvfile, index=False, line_terminator='\n')
