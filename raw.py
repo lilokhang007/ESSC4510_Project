@@ -42,7 +42,8 @@ if __name__ == "__main__":
         df[['day', 'slp', 'maxtemp', 'avgtemp', 'mintemp', 'dewtemp', 'rh', 'cld', 'rf', 'sunhr', 'prewd', 'avgws']] = pd.DataFrame(df.dayData.tolist())
         df = df.drop('dayData', axis=1)
         df['year'] = year
-        df_year = pd.concat([df_year, df])
+        df_all = pd.concat([df_all, df])
 
     with open("hko_data.csv".format(), 'w') as csvfile:
-        df_year.to_csv(csvfile, index=False, line_terminator='\n')
+        df_all.to_csv(csvfile, index=False, line_terminator='\n')
+
