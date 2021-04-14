@@ -137,13 +137,13 @@ def eval_score(b_norm=b_norm):
             if (Z_avg > Z_AN):
                 #print(f, i, abs(Z_avg - Z_AN))
                 if not b_norm[f][i]:
-                    Penalty += abs(Z_avg - Z_AN)
-                Total_Penalty += abs(Z_avg - Z_AN)
+                    Penalty += abs(Z_avg - Z_BN)
+                Total_Penalty += abs(Z_avg - Z_BN)
             elif (Z_avg < Z_BN):
                 #print(f, i, abs(Z_avg - Z_BN))
                 if b_norm[f][i]:
-                    Penalty += abs(Z_avg - Z_BN)
-                Total_Penalty += abs(Z_avg - Z_BN)
+                    Penalty += abs(Z_avg - Z_AN)
+                Total_Penalty += abs(Z_avg - Z_AN)
 
         Score.append(1 - Penalty / Total_Penalty)
     return Score
