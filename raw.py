@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+pd.set_option('display.max_rows', 500)
 
 def get_raw_data_from_fetch_request(yyyy='2021'):
     # Send a request to get a xml file from HKO backend server
@@ -29,7 +30,7 @@ def get_raw_data_from_fetch_request(yyyy='2021'):
 
 if __name__ == "__main__":
     df_year = pd.DataFrame()
-    for year in range(1990, 2022):
+    for year in range(1980, 2022):
         jsonData = get_raw_data_from_fetch_request(
             yyyy = str(year)
         )
@@ -37,13 +38,16 @@ if __name__ == "__main__":
         # use year as key
         df = pd.DataFrame()
         for monthData in jsonData:
-            df = pd.concat([df, pd.DataFrame(monthData).iloc[:-3]])
+            df = pd.concat([df, pd.DataFrame(monthData).iloc[:-2]])
+
+        df = df.reset_index()
 
         df[['day', 'slp', 'maxtemp', 'avgtemp', 'mintemp', 'dewtemp', 'rh', 'cld', 'rf', 'sunhr', 'prewd', 'avgws']] = pd.DataFrame(df.dayData.tolist())
-        df = df.drop('dayData', axis=1)
+        df = df.drop(['dayData', 'index'], axis=1)
+
         df['year'] = year
-        df_all = pd.concat([df_all, df])
+        df_year = pd.concat([df_year, df])
 
     with open("hko_data.csv".format(), 'w') as csvfile:
-        df_all.to_csv(csvfile, index=False, line_terminator='\n')
+        df_year.to_csv(csvfile, index=False, line_terminator='\n')
 
