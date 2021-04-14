@@ -6,9 +6,6 @@ from scipy.stats.distributions import norm
 with open("hko_data.csv".format(), 'r') as csvfile:
     df_all = pd.read_csv(csvfile, index_col=None)
 
-df_all['rf'] = df_all['rf'].replace('Trace', '  0.0') # replace "Trace" (str) to 0 (int)
-df_all['rf'] = df_all['rf'].str.lstrip().astype(float) # remove trailing white space
-
 # define season names
 season_names = ['spring', 'summer', 'autumn', 'winter']
 
@@ -157,7 +154,7 @@ for f, field in enumerate(fields):
 
 # demonstration purpose: suppose a forecast without skill, only outputting random ranges
 Scores_rand = []
-n_trials = 1000
+n_trials = 100
 for _ in range(n_trials):
     b_norm_rand = np.random.randint(2, size=16).reshape(2,8)
     Scores_rand.append(eval_score(b_norm_rand))

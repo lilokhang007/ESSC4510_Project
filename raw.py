@@ -48,6 +48,10 @@ if __name__ == "__main__":
         df['year'] = year
         df_year = pd.concat([df_year, df])
 
+    df_year.drop(df_year.iloc[[14793, 14764, 14825]], axis=1)  # drop "Mean/Total"
+    df_year['rf'] = df_year['rf'].replace('Trace', '  0.0')  # replace "Trace" (str) to 0 (int)
+    df_year['rf'] = df_year['rf'].str.lstrip().astype(float)  # remove trailing white space
+
     with open("hko_data.csv".format(), 'w') as csvfile:
         df_year.to_csv(csvfile, index=False, line_terminator='\n')
 
