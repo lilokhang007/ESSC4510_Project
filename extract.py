@@ -61,7 +61,10 @@ def extract_by_season_and_year(season='spring', year = 1990):
 # evalulate seasonal average of a selected year
 def eval_selected_year_seasonal_avg(field='avgtemp', season='spring', year=1990):
     df = extract_by_season_and_year(season=season, year=year)
-    return np.average(df[field])
+    if field == 'avgtemp':
+        return np.average(df[field])
+    elif field == 'rf':
+        return np.sum(df[field])
 
 # get seasonal averages into a dictionary
 def get_seasonal_avg_in_dict(field='avgtemp', season='spring'):
@@ -154,7 +157,7 @@ for f, field in enumerate(fields):
 
 # demonstration purpose: suppose a forecast without skill, only outputting random ranges
 Scores_rand = []
-n_trials = 100
+n_trials = 500
 for _ in range(n_trials):
     b_norm_rand = np.random.randint(2, size=16).reshape(2,8)
     Scores_rand.append(eval_score(b_norm_rand))
