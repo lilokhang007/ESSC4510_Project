@@ -159,11 +159,15 @@ for f, field in enumerate(fields):
     print('score:', field, Scores[f])
 
 # demonstration purpose: suppose a forecast without skill, only outputting random ranges
+o_temp = [1,1,1,1,1,1,1,1] #temp observation
+o_rf = [2,2,0,2,2,0,1,0]  #rf observation
 Scores_rand = []
+a = []
 n_trials = 100
 for _ in range(n_trials):
     b_norm_rand = np.random.randint(2, size=16).reshape(2,8)
     Scores_rand.append(eval_score(b_norm_rand))
+    a.append(b_norm_rand)
 
 # glance at the average scores
 Score_T_rand = np.array(Scores_rand).T[0]
@@ -179,3 +183,23 @@ print('pval:', ttest_1samp(Score_Rf_rand, Scores[1]).pvalue)
 
 # ==> H0 can be rejected
 
+
+# skill score (0 = below, 1 = above, 2 = norm )
+temp_rand = []
+rf_rand = []
+for i in range(n_trials):
+    temp, rf = a[i]
+    temp_hit = 0
+    rf_hit = 0
+    for j in range(8):
+        if temp[j] == o_temp[j] or o_temp[j] == 2:
+            temp_hit = temp_hit + 1
+        if rf[j] == o_rf[j] or o_rf[j] == 2:
+            rf_hit = rf_hit + 1
+    temp_rand.append(temp_hit)
+    rf_rand.append(rf_hit)
+
+exp_hit_temp = np.average(temp_rand)
+exp_hit_rf = np.average(rf_rand)
+hit_skill_temp = (7 - exp_hit_temp) / (8 - exp_hit_temp) * 100
+hit_skill_rf = (7 - exp_hit_rf) / (8 - exp_hit_rf) * 100
