@@ -61,8 +61,10 @@ def extract_by_season_and_year(season='spring', year = 1990):
 # evalulate seasonal average of a selected year
 def eval_selected_year_seasonal_avg(field='avgtemp', season='spring', year=1990):
     df = extract_by_season_and_year(season=season, year=year)
+    # calculate seasonal avg for temp
     if field == 'avgtemp':
         return np.average(df[field])
+    # calculate cumulative sum for rainfall
     elif field == 'rf':
         return np.sum(df[field])
 
@@ -72,16 +74,19 @@ def get_seasonal_avg_in_dict(field='avgtemp', season='spring'):
         year: eval_selected_year_seasonal_avg(field=field, season=season, year=year) for year in range(1980, 2021)
     }
 
+# save every seasonal statistic into a list of list
 seasonal_avg_dict_ls_ls = [
     [
         get_seasonal_avg_in_dict(field=field, season=season) for season in season_names
     ] for field in fields
 ]
 
+# yield the mu and sigma given a sample of seasonal statistics
 def norm_fit():
-    # define AN and BN thresholds
+    # this is used to define AN and BN thresholds
     # https://www.hko.gov.hk/en/wxinfo/season/intpret.htm
 
+    # loop through two fields and four seasons
     return [
         [
             [
@@ -96,7 +101,7 @@ def norm_fit():
 # read: https://www.hko.gov.hk/en/wxinfo/season/catTT_91-20.htm
 # an = [23.3, 28.9, 25.5, 17.7]
 # bn = [22.6, 28.4, 25.0, 16.8]
-args = norm_fit()
+args = norm_fit() # get the mu and sigmas into this variable
 
 # season names
 start_year = 2019
@@ -105,6 +110,7 @@ start_season = 'spring'
 end_season = 'winter'
 
 # generate a list of seasons forecasted
+# we could have hard-coded the list, but this is just to make the code more robust
 def get_seasons(start_year, start_season, end_year, end_season):
     ls = []
     for year in range(start_year, end_year + 1):
@@ -116,8 +122,10 @@ def get_seasons(start_year, start_season, end_year, end_season):
             season = season_names[season_names.index(season) + 1]
     return ls
 
+# put the seasons into a list
 season_lists = get_seasons(start_year, start_season, end_year, end_season)
 
+# function to evaluate the score of the forecasts given the forecasts
 def eval_score(b_norm=b_norm):
     Score = []
 
@@ -138,19 +146,15 @@ def eval_score(b_norm=b_norm):
             mean, var = args[f][s][arg_index]
             Z_avg = (selected_yr_seasonal_avg - mean) / (var ** 1/2)
             if (Z_avg > Z_AN):
-                print(f, i, Z_avg, abs(Z_avg - Z_AN))
                 if not b_norm[f][i]:
                     Penalty += abs(Z_avg - Z_AN)
                 Total_Penalty += abs(Z_avg - Z_AN)
             elif (Z_avg < Z_BN):
-                print(f, i, Z_avg, abs(Z_avg - Z_BN))
                 if b_norm[f][i]:
                     Penalty += abs(Z_avg - Z_BN)
                 Total_Penalty += abs(Z_avg - Z_BN)
             else:
-                print(f, i, Z_avg)
-
-            print(Penalty, Total_Penalty, '\n')
+                pass
         Score.append(1 - Penalty / Total_Penalty)
     return Score
 
@@ -180,9 +184,7 @@ print('averages:', np.average(Score_T_rand), np.average(Score_Rf_rand))
 # Hypothesized population mean: score of the HKO seasonal forecast
 print('pval:', ttest_1samp(Score_T_rand, Scores[0]).pvalue)
 print('pval:', ttest_1samp(Score_Rf_rand, Scores[1]).pvalue)
-
 # ==> H0 can be rejected
-
 
 # skill score (0 = below, 1 = above, 2 = norm )
 temp_rand = []
@@ -203,3 +205,5 @@ exp_hit_temp = np.average(temp_rand)
 exp_hit_rf = np.average(rf_rand)
 hit_skill_temp = (7 - exp_hit_temp) / (8 - exp_hit_temp) * 100
 hit_skill_rf = (7 - exp_hit_rf) / (8 - exp_hit_rf) * 100
+print('hs temp:', hit_skill_temp)
+print('hs rf:', hit_skill_rf)
