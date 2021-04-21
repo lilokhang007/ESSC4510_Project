@@ -138,16 +138,19 @@ def eval_score(b_norm=b_norm):
             mean, var = args[f][s][arg_index]
             Z_avg = (selected_yr_seasonal_avg - mean) / (var ** 1/2)
             if (Z_avg > Z_AN):
-                #print(f, i, abs(Z_avg - Z_AN))
+                print(f, i, Z_avg, abs(Z_avg - Z_AN))
                 if not b_norm[f][i]:
-                    Penalty += abs(Z_avg - Z_BN)
-                Total_Penalty += abs(Z_avg - Z_BN)
-            elif (Z_avg < Z_BN):
-                #print(f, i, abs(Z_avg - Z_BN))
-                if b_norm[f][i]:
                     Penalty += abs(Z_avg - Z_AN)
                 Total_Penalty += abs(Z_avg - Z_AN)
+            elif (Z_avg < Z_BN):
+                print(f, i, Z_avg, abs(Z_avg - Z_BN))
+                if b_norm[f][i]:
+                    Penalty += abs(Z_avg - Z_BN)
+                Total_Penalty += abs(Z_avg - Z_BN)
+            else:
+                print(f, i, Z_avg)
 
+            print(Penalty, Total_Penalty, '\n')
         Score.append(1 - Penalty / Total_Penalty)
     return Score
 
@@ -157,7 +160,7 @@ for f, field in enumerate(fields):
 
 # demonstration purpose: suppose a forecast without skill, only outputting random ranges
 Scores_rand = []
-n_trials = 500
+n_trials = 100
 for _ in range(n_trials):
     b_norm_rand = np.random.randint(2, size=16).reshape(2,8)
     Scores_rand.append(eval_score(b_norm_rand))
@@ -175,3 +178,4 @@ print('pval:', ttest_1samp(Score_T_rand, Scores[0]).pvalue)
 print('pval:', ttest_1samp(Score_Rf_rand, Scores[1]).pvalue)
 
 # ==> H0 can be rejected
+
